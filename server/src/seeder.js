@@ -6,9 +6,7 @@ const Coupon = require('./models/Coupon');
 const Review = require('./models/Review');
 const Order = require('./models/Order');
 
-dotenv.config();
-connectDB();
-
+// seeder data only
 const seedUsers = [
   {
     name: 'Admin User',
@@ -124,40 +122,29 @@ const seedCoupons = [
   { code: 'SKINCARE20', discount: 20, expiryDate: new Date('2026-12-31') }
 ];
 
-const importData = async () => {
+const seedDatabaseAPI = async () => {
   try {
     // Clear old collections
     await User.deleteMany();
     await Product.deleteMany();
     await Coupon.deleteMany();
     await Review.deleteMany();
-    await Order.deleteMany();
 
-    console.log('[SEEDER] Cleaned up existing database collections.');
+    const createdUsers = await User.insertMany(seedUsers);
+    const adminUser = createdUsers[0]._id;
 
-    // Seed Users (will hash password on pre-save hook)
-    for (const u of seedUsers) {
-      await User.create(u);
-    }
-    console.log('[SEEDER] Seeded administrative and customer users.');
+    const sampleProducts = seedProducts.map((p) => {
+      return { ...p, user: adminUser };
+    });
 
-    // Seed Coupons
+    await Product.insertMany(sampleProducts);
     await Coupon.insertMany(seedCoupons);
-    console.log('[SEEDER] Seeded promotional discount codes.');
 
-    // Seed Products
-    await Product.insertMany(seedProducts);
-    console.log('[SEEDER] Seeded organic skincare catalog items.');
-
-    console.log('[SEEDER] Database seeding successfully finalized!');
-    process.exit(0);
+    return { success: true, message: 'Database successfully seeded from cloud!' };
   } catch (error) {
     console.error(`[SEEDER ERROR] Database seeder failed: ${error.message}`);
-    process.exit(1);
+    throw error;
   }
 };
 
-// Start seeding with standard safe delays to let database connect
-setTimeout(() => {
-  importData();
-}, 2000);
+module.exports = { seedDatabaseAPI };

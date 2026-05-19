@@ -74,6 +74,18 @@ app.get('/api', (req, res) => {
   res.json({ message: 'AuraGlow Premium Skincare API is operational, secure, and ready.' });
 });
 
+// Cloud Database Seeder Route (Temporary)
+const { seedDatabaseAPI } = require('./seeder');
+app.get('/api/seed', async (req, res) => {
+  try {
+    const result = await seedDatabaseAPI();
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Fallback Route error handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'API endpoint route not found' });

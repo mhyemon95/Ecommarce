@@ -78,8 +78,45 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+// @desc    Update quantity of an existing cart item
+// @route   PUT /api/cart
+// @access  Private
+const updateCartQuantity = async (req, res) => {
+  const { productId, qty } = req.body;
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    if (qty > product.stock) {
+      return res.status(400).json({ message: `Insufficient stock. Only ${product.stock} left.` });
+    }
+
+    let cart = await Cart.findOne({ user: req.user._id });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found. Add item first.' });
+    }
+
+    const itemIndex = cart.cartItems.findIndex(item => item.product.toString() === productId);
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Item not in cart. Use add-to-cart first.' });
+    }
+
+    cart.cartItems[itemIndex].qty = Number(qty);
+    await cart.save();
+
+    const populatedCart = await Cart.findOne({ user: req.user._id }).populate('cartItems.product', 'title price images stock');
+    res.json(populatedCart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCart,
   addToCart,
-  removeFromCart
+  removeFromCart,
+  updateCartQuantity
 };

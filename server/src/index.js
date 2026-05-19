@@ -30,8 +30,14 @@ app.use(helmet({
   crossOriginResourcePolicy: false // Allow loading local uploads in browser
 }));
 
-// 2. CORS configurations
-app.use(cors());
+// 2. CORS — whitelist only the frontend client origin
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 
 // 3. Parser Limit
 app.use(express.json({ limit: '10mb' }));
@@ -75,6 +81,11 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`[SERVER] Express Server running securely on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`[SERVER] Express Server running securely on port ${PORT}`);
+  });
+}
+
+// Export the app for Vercel Serverless deployment
+module.exports = app;

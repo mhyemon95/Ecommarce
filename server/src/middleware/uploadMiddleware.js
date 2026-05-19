@@ -38,9 +38,17 @@ if (isCloudinaryConfigured) {
 
 if (!storage) {
   // Local storage fallback
-  const uploadDir = path.join(__dirname, '../../uploads');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+  let uploadDir = path.join(__dirname, '../../uploads');
+  try {
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+  } catch (err) {
+    // If Vercel throws a read-only file system error, fallback to the allowed /tmp directory
+    uploadDir = '/tmp/auraglow_uploads';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
   }
 
   storage = multer.diskStorage({

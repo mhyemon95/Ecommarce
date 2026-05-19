@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUserSuccess } from '@/redux/slices/authSlice';
-import { X, User, MapPin, Package, Heart, RefreshCw, ShieldCheck, MapPinIcon, Info } from 'lucide-react';
+import { X, User, MapPin, Package, RefreshCw, MapPinIcon } from 'lucide-react';
 import { api } from '@/services/api';
 
 export default function UserDashboardModal({ onClose }) {
@@ -78,12 +78,10 @@ export default function UserDashboardModal({ onClose }) {
     }
 
     try {
-      // Mock or active address addition
       const mockAddr = { _id: 'addr-' + Date.now(), street, city, postalCode, phone, country: 'Bangladesh' };
       const updatedList = [...addresses, mockAddr];
       setAddresses(updatedList);
       
-      // Update store
       dispatch(updateUserSuccess({ addresses: updatedList }));
 
       setStreet('');
@@ -97,7 +95,6 @@ export default function UserDashboardModal({ onClose }) {
     }
   };
 
-  // Helper to map order tracker status
   const getStatusStep = (status) => {
     switch (status) {
       case 'Pending':
@@ -127,7 +124,7 @@ export default function UserDashboardModal({ onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors animate-pulse"
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -183,7 +180,7 @@ export default function UserDashboardModal({ onClose }) {
             {activeTab === 'orders' && (
               <div className="space-y-6 flex-1 flex flex-col md:flex-row gap-6 overflow-hidden">
                 
-                {/* Orders List Column */}
+                {/* Orders List */}
                 <div className="flex-1 overflow-y-auto pr-2 space-y-3 max-h-[480px]">
                   <h4 className="text-sm font-bold text-slate-800">Purchased Logs</h4>
                   
@@ -203,9 +200,9 @@ export default function UserDashboardModal({ onClose }) {
                         <div className="flex justify-between items-center text-xs">
                           <span className="font-extrabold text-slate-900 truncate max-w-[120px]">{order._id}</span>
                           <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
-                            order.status === 'Delivered' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                            order.deliveryStatus === 'Delivered' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                           }`}>
-                            {order.status}
+                            {order.deliveryStatus}
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2">
@@ -217,7 +214,7 @@ export default function UserDashboardModal({ onClose }) {
                   )}
                 </div>
 
-                {/* Selected Order Tracking Detail Column */}
+                {/* Tracking Detail */}
                 {selectedOrder && (
                   <div className="w-full md:w-80 border border-slate-100 rounded-3xl p-6 bg-slate-50/30 flex flex-col space-y-4 max-h-[480px] overflow-y-auto">
                     <div>
@@ -225,7 +222,6 @@ export default function UserDashboardModal({ onClose }) {
                       <span className="text-xs font-extrabold text-slate-900 mt-1 block">Ref: {selectedOrder._id}</span>
                     </div>
 
-                    {/* Stepper Graphic */}
                     <div className="space-y-4 pt-2">
                       {[
                         { step: 1, name: 'Placed & Confirmed', desc: 'SKU packed for verification.' },
@@ -233,14 +229,14 @@ export default function UserDashboardModal({ onClose }) {
                         { step: 3, name: 'Shipped (On The Road)', desc: 'Courier dispatches SKU package.' },
                         { step: 4, name: 'Delivered', desc: 'Arrived at destination address.' }
                       ].map((s) => {
-                        const activeStep = getStatusStep(selectedOrder.status);
+                        const activeStep = getStatusStep(selectedOrder.deliveryStatus);
                         const isDone = s.step <= activeStep;
                         return (
                           <div key={s.step} className="flex gap-3">
                             <div className="flex flex-col items-center">
                               <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold border transition-colors ${
                                 isDone 
-                                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-650/10' 
+                                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' 
                                   : 'bg-white text-slate-300 border-slate-200'
                               }`}>
                                 {s.step}
@@ -256,16 +252,11 @@ export default function UserDashboardModal({ onClose }) {
                       })}
                     </div>
 
-                    {/* Order summary info */}
                     <div className="border-t border-slate-100 pt-4 text-[11px] space-y-2 text-slate-500">
                       <div className="flex justify-between">
-                        <span>Payment Method</span>
-                        <span className="font-bold text-slate-800">{selectedOrder.paymentMethod}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Paid Status</span>
-                        <span className={`font-bold ${selectedOrder.isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
-                          {selectedOrder.isPaid ? 'PAID' : 'PAY ON DELIVERY'}
+                        <span>Payment Status</span>
+                        <span className={`font-bold ${selectedOrder.paymentStatus === 'Paid' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                          {selectedOrder.paymentStatus}
                         </span>
                       </div>
                     </div>
@@ -285,7 +276,7 @@ export default function UserDashboardModal({ onClose }) {
                       type="text"
                       placeholder="Full Name"
                       required
-                      className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-xs outline-none focus:border-emerald-500"
+                      className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-xs outline-none"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
@@ -306,7 +297,7 @@ export default function UserDashboardModal({ onClose }) {
                     <input
                       type="password"
                       placeholder="Change Password (leave empty to keep)"
-                      className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-xs outline-none focus:border-emerald-500"
+                      className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-xs outline-none"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -314,8 +305,8 @@ export default function UserDashboardModal({ onClose }) {
                   </div>
                 </div>
 
-                {message && <p className="text-xs text-emerald-755 text-emerald-700 font-bold">{message}</p>}
-                {error && <p className="text-xs text-red-655 text-red-600">{error}</p>}
+                {message && <p className="text-xs text-emerald-700 font-bold">{message}</p>}
+                {error && <p className="text-xs text-red-600">{error}</p>}
 
                 <button
                   type="submit"
@@ -329,7 +320,6 @@ export default function UserDashboardModal({ onClose }) {
             {/* TAB: Addresses */}
             {activeTab === 'addresses' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* List Addresses */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold text-slate-800">Saved Shipping Locations</h4>
                   {addresses.length === 0 ? (
@@ -348,14 +338,13 @@ export default function UserDashboardModal({ onClose }) {
                   )}
                 </div>
 
-                {/* Add Address Form */}
                 <form onSubmit={handleAddAddress} className="border border-slate-100 rounded-3xl p-6 bg-slate-50/10 space-y-3">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Register New Address</h4>
                   <input
                     type="text"
                     placeholder="Street Address (Gulshan-2 etc.)"
                     required
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none focus:border-emerald-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
                     value={street}
                     onChange={(e) => setStreet(e.target.value)}
                   />
@@ -364,7 +353,7 @@ export default function UserDashboardModal({ onClose }) {
                       type="text"
                       placeholder="City"
                       required
-                      className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none focus:border-emerald-500"
+                      className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                     />
@@ -372,7 +361,7 @@ export default function UserDashboardModal({ onClose }) {
                       type="text"
                       placeholder="Postal Code"
                       required
-                      className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none focus:border-emerald-500"
+                      className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                     />
@@ -381,7 +370,7 @@ export default function UserDashboardModal({ onClose }) {
                     type="text"
                     placeholder="Delivery Phone Number"
                     required
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none focus:border-emerald-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />

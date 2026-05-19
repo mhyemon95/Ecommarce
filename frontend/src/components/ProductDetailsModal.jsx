@@ -11,19 +11,22 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
   const { userInfo } = useSelector((state) => state.auth);
   
   const [qty, setQty] = useState(1);
-  const [reviews, setReviews] = useState(product.reviews || []);
+  const [reviews, setReviews] = useState(product.reviewsList || product.reviews || []);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [averageRating, setAverageRating] = useState(product.rating || 0);
-  const [numReviews, setNumReviews] = useState(product.numReviews || 0);
+  const [numReviews, setNumReviews] = useState(product.reviews ? product.reviews.length : 0);
 
-  // Sync state if product changes
+  const imageUrl = product.images && product.images.length > 0
+    ? product.images[0]
+    : 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60';
+
   useEffect(() => {
-    setReviews(product.reviews || []);
+    setReviews(product.reviewsList || product.reviews || []);
     setAverageRating(product.rating || 0);
-    setNumReviews(product.numReviews || 0);
+    setNumReviews(product.reviews ? product.reviews.length : 0);
     setQty(1);
     setReviewError('');
     setReviewSuccess(false);
@@ -32,9 +35,9 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
   const handleAddToCart = () => {
     const cartItem = {
       product: product._id,
-      name: product.name,
+      name: product.title,
       price: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl: imageUrl,
       qty,
       stock: product.stock
     };
@@ -63,7 +66,7 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
     }
 
     try {
-      const response = await api.createReview(product._id, {
+      await api.createReview(product._id, {
         name: userInfo.name,
         rating,
         comment
@@ -72,10 +75,10 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
       setReviewSuccess(true);
       setReviewError('');
       
-      // Update local reviews list
       const newReview = {
         _id: 'new-rev-' + Date.now(),
         name: userInfo.name,
+        user: { name: userInfo.name },
         rating,
         comment,
         createdAt: new Date().toISOString()
@@ -83,12 +86,9 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
       
       const updatedReviews = [newReview, ...reviews];
       setReviews(updatedReviews);
+      setNumReviews(updatedReviews.length);
       
-      // Update aggregates
-      const totalReviews = updatedReviews.length;
-      setNumReviews(totalReviews);
-      
-      const newAvg = (updatedReviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1);
+      const newAvg = (updatedReviews.reduce((acc, r) => acc + (r.rating || 0), 0) / updatedReviews.length).toFixed(1);
       setAverageRating(Number(newAvg));
 
       setComment('');
@@ -118,8 +118,8 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
             <div className="flex flex-col gap-4">
               <div className="aspect-square w-full overflow-hidden rounded-2xl bg-slate-50 border border-slate-100">
                 <img
-                  src={product.imageUrl}
-                  alt={product.name}
+                  src={imageUrl}
+                  alt={product.title}
                   className="h-full w-full object-cover object-center"
                 />
               </div>
@@ -134,7 +134,7 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
             {/* Column 2: Content */}
             <div className="flex flex-col">
               <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
-                {product.name}
+                {product.title}
               </h2>
 
               {/* Rating Summary */}
@@ -174,7 +174,7 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
                 {product.description}
               </p>
 
-              {/* Quantity Selector and CTA */}
+              {/* Quantity Selector */}
               {!isOutOfStock && (
                 <div className="mt-6 flex flex-col sm:flex-row items-center gap-4">
                   <div className="flex items-center border border-slate-200 rounded-full py-1.5 px-3 bg-slate-50">
@@ -198,7 +198,7 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
 
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold tracking-wide shadow-lg shadow-emerald-600/10 hover:shadow-xl hover:shadow-emerald-600/25 transition-all w-full sm:w-auto"
+                    className="flex-1 flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold tracking-wide shadow-lg shadow-emerald-600/10 w-full sm:w-auto"
                   >
                     <ShoppingBag className="h-5 w-5" />
                     Add To Cart
@@ -209,7 +209,7 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
 
           </div>
 
-          {/* Customer Reviews Section */}
+          {/* Customer Reviews */}
           <div className="mt-12 border-t border-slate-100 pt-8">
             <h3 className="text-lg font-bold text-slate-900 mb-6">Customer Reviews</h3>
 
@@ -218,18 +218,14 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
               {/* Review List */}
               <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
                 {reviews.length === 0 ? (
-                  <p className="text-sm text-slate-400 italic">No reviews yet for this product. Be the first to share your thoughts!</p>
+                  <p className="text-sm text-slate-400 italic">No reviews yet for this product.</p>
                 ) : (
-                  reviews.map((rev) => (
-                    <div key={rev._id} className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 space-y-2">
+                  reviews.map((rev, index) => (
+                    <div key={rev._id || index} className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 space-y-2">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-slate-800">{rev.name}</span>
+                        <span className="text-sm font-bold text-slate-800">{rev.user?.name || rev.name || 'Verified User'}</span>
                         <span className="text-[10px] text-slate-400">
-                          {new Date(rev.createdAt).toLocaleDateString(undefined, {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
+                          {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : 'Just now'}
                         </span>
                       </div>
                       <div className="flex items-center">
@@ -258,12 +254,10 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
                       <Check className="h-6 w-6" />
                     </span>
                     <h5 className="font-bold text-sm">Review Submitted!</h5>
-                    <p className="text-xs text-slate-500 mt-1">Thank you for sharing your premium skincare feedback.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleReviewSubmit} className="space-y-4">
                     
-                    {/* Star Selection */}
                     <div className="flex flex-col gap-1">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Rating</span>
                       <div className="flex items-center gap-1.5">
@@ -284,13 +278,12 @@ export default function ProductDetailsModal({ product, onClose, onOpenCart, onOp
                       </div>
                     </div>
 
-                    {/* Comment text */}
                     <div className="flex flex-col gap-1">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your feedback</span>
                       <textarea
                         rows="3"
-                        placeholder="Share your organic skin results..."
-                        className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                        placeholder="Share your skin results..."
+                        className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-xs outline-none focus:border-emerald-500"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                       />

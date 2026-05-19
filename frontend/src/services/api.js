@@ -29,12 +29,13 @@ axiosInstance.interceptors.request.use((config) => {
 let mockProducts = [
   {
     _id: 'prod1',
-    name: 'Salicylic Acid Foaming Facewash',
+    title: 'Salicylic Acid Foaming Facewash',
     description: 'A deep-cleansing foaming face wash containing 2% Salicylic Acid to gently exfoliate, unclog pores, and remove acne-causing impurities while keeping the skin hydrated.',
     price: 499,
+    discountPrice: 449,
     category: 'Facewash',
     stock: 25,
-    imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60'],
     rating: 4.5,
     numReviews: 4,
     reviews: [
@@ -44,12 +45,13 @@ let mockProducts = [
   },
   {
     _id: 'prod2',
-    name: 'Hydrating Ceramide Cleanser',
+    title: 'Hydrating Ceramide Cleanser',
     description: 'Formulated with three essential ceramides and hyaluronic acid to cleanse, hydrate, and restore the skin protective barrier without stripping away vital moisture.',
     price: 550,
+    discountPrice: 0,
     category: 'Facewash',
     stock: 30,
-    imageUrl: 'https://images.unsplash.com/photo-1608248597481-496100c80836?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1608248597481-496100c80836?w=500&auto=format&fit=crop&q=60'],
     rating: 4.8,
     numReviews: 2,
     reviews: [
@@ -58,12 +60,13 @@ let mockProducts = [
   },
   {
     _id: 'prod3',
-    name: '10% Niacinamide Glowing Serum',
+    title: '10% Niacinamide Glowing Serum',
     description: 'A lightweight concentrated serum with Niacinamide and Zinc PCA that significantly minimizes large pores, refines uneven texture, fades dark spots, and reduces redness.',
     price: 799,
+    discountPrice: 699,
     category: 'Serum',
     stock: 15,
-    imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60'],
     rating: 4.7,
     numReviews: 3,
     reviews: [
@@ -72,60 +75,65 @@ let mockProducts = [
   },
   {
     _id: 'prod4',
-    name: 'Pure Retinol Youthful Serum',
+    title: 'Pure Retinol Youthful Serum',
     description: 'An advanced anti-aging serum powered by encapsulated retinol to accelerate cellular turnover, fade fine lines and deep wrinkles, and restore radiant skin elasticity.',
     price: 950,
+    discountPrice: 899,
     category: 'Serum',
     stock: 8,
-    imageUrl: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=500&auto=format&fit=crop&q=60'],
     rating: 4.6,
     numReviews: 1,
     reviews: []
   },
   {
     _id: 'prod5',
-    name: 'Ultra Hydrating Water Gel Cream',
+    title: 'Ultra Hydrating Water Gel Cream',
     description: 'An oil-free, non-comedogenic water gel cream that delivers intense, 48-hour hydration to dry skin. Formulated with hyaluronic acid for a plump, dewy look.',
     price: 650,
+    discountPrice: 0,
     category: 'Cream',
     stock: 20,
-    imageUrl: 'https://images.unsplash.com/photo-1617897903246-719242758050?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1617897903246-719242758050?w=500&auto=format&fit=crop&q=60'],
     rating: 4.9,
     numReviews: 8,
     reviews: []
   },
   {
     _id: 'prod6',
-    name: 'Centella Barrier Repair Cream',
+    title: 'Centella Barrier Repair Cream',
     description: 'A soothing moisturizing cream enriched with 70% Centella Asiatica extract and panthenol to calm irritated skin, reduce inflammation, and rebuild damaged skin barrier.',
     price: 720,
+    discountPrice: 0,
     category: 'Cream',
     stock: 12,
-    imageUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500&auto=format&fit=crop&q=60'],
     rating: 4.7,
     numReviews: 1,
     reviews: []
   },
   {
     _id: 'prod7',
-    name: 'Matte Finish Sunscreen SPF 50+',
+    title: 'Matte Finish Sunscreen SPF 50+',
     description: 'A lightweight, non-greasy, broad-spectrum sunscreen that provides strong UV protection with a smooth matte finish. Sweat-proof, waterproof, and leaves zero white cast.',
     price: 599,
+    discountPrice: 549,
     category: 'Sunscreen',
     stock: 40,
-    imageUrl: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&auto=format&fit=crop&q=60'],
     rating: 4.8,
     numReviews: 15,
     reviews: []
   },
   {
     _id: 'prod8',
-    name: 'Hyaluronic Acid Airy Sun Stick',
+    title: 'Hyaluronic Acid Airy Sun Stick',
     description: 'A highly portable broad-spectrum chemical sunscreen stick that applies invisibly over makeup. Glides smoothly with 8 types of hyaluronic acid to hydrate on the go.',
     price: 850,
+    discountPrice: 0,
     category: 'Sunscreen',
     stock: 18,
-    imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500&auto=format&fit=crop&q=60',
+    images: ['https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60'],
     rating: 4.9,
     numReviews: 6,
     reviews: []
@@ -175,7 +183,7 @@ export const api = {
       }
       if (params.keyword) {
         const query = params.keyword.toLowerCase();
-        filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+        filtered = filtered.filter(p => p.title.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
       }
       
       if (params.sort === 'priceAsc') {
@@ -184,8 +192,6 @@ export const api = {
         filtered.sort((a, b) => b.price - a.price);
       } else if (params.sort === 'rating') {
         filtered.sort((a, b) => b.rating - a.rating);
-      } else {
-        // default newest (reverse array mock)
       }
 
       const pageSize = params.pageSize || 8;
@@ -231,10 +237,13 @@ export const api = {
         createdAt: new Date().toISOString()
       };
       
-      mockProducts[prodIndex].reviews.push(newReview);
-      mockProducts[prodIndex].numReviews = mockProducts[prodIndex].reviews.length;
+      if (!mockProducts[prodIndex].reviewsList) {
+        mockProducts[prodIndex].reviewsList = [];
+      }
+      mockProducts[prodIndex].reviewsList.push(newReview);
+      mockProducts[prodIndex].numReviews = mockProducts[prodIndex].reviewsList.length;
       mockProducts[prodIndex].rating = Number(
-        (mockProducts[prodIndex].reviews.reduce((acc, r) => acc + r.rating, 0) / mockProducts[prodIndex].reviews.length).toFixed(1)
+        (mockProducts[prodIndex].reviewsList.reduce((acc, r) => acc + r.rating, 0) / mockProducts[prodIndex].reviewsList.length).toFixed(1)
       );
 
       return { message: 'Review added successfully' };
@@ -248,13 +257,13 @@ export const api = {
       const response = await axiosInstance.post('/users/register', userData);
       return response.data;
     } else {
-      // Mock registration: immediately verified for simplicity, or returns OTP needed
       const newUser = {
         _id: 'user-' + Math.random().toString(36).substr(2, 9),
         name: userData.name,
         email: userData.email,
         role: userData.email.includes('admin') ? 'admin' : 'customer',
         isVerified: false,
+        phone: userData.phone || '01700000000',
         token: 'mock-jwt-token-' + Math.random().toString(36).substr(2, 9)
       };
       console.log(`[MOCK OTP SYSTEM] Generated OTP: 123456`);
@@ -278,6 +287,7 @@ export const api = {
           email,
           role: email.includes('admin') ? 'admin' : 'customer',
           isVerified: true,
+          phone: '01700000000',
           token: 'mock-jwt-token-verified',
           message: 'OTP Verified successfully! Welcome aboard.'
         };
@@ -293,7 +303,6 @@ export const api = {
       const response = await axiosInstance.post('/users/login', credentials);
       return response.data;
     } else {
-      // Mock login: admin check
       const isAdmin = credentials.email === 'admin@ecommarce.com' || credentials.email.includes('admin');
       if (credentials.password === 'password123' || credentials.password) {
         return {
@@ -301,6 +310,7 @@ export const api = {
           name: isAdmin ? 'Admin User' : 'Test Customer',
           email: credentials.email,
           role: isAdmin ? 'admin' : 'customer',
+          phone: '01711111111',
           isVerified: true,
           token: 'mock-jwt-token-' + (isAdmin ? 'admin' : 'customer')
         };
@@ -320,6 +330,8 @@ export const api = {
         name: profileData.name || 'Updated Customer',
         email: 'customer@ecommarce.com',
         role: 'customer',
+        phone: '01711111111',
+        addresses: profileData.addresses || [],
         isVerified: true
       };
     }
@@ -351,21 +363,19 @@ export const api = {
     } else {
       const newOrder = {
         _id: 'order-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        orderItems: orderData.orderItems,
+        products: orderData.orderItems.map(item => ({
+          product: item.product,
+          qty: item.qty
+        })),
         shippingAddress: orderData.shippingAddress,
-        paymentMethod: orderData.paymentMethod,
-        itemsPrice: orderData.itemsPrice,
-        taxPrice: orderData.taxPrice,
-        shippingPrice: orderData.shippingPrice,
         totalPrice: orderData.totalPrice,
-        isPaid: orderData.paymentMethod === 'Cash on Delivery' ? false : true,
-        paidAt: orderData.paymentMethod === 'Cash on Delivery' ? null : new Date().toISOString(),
-        status: 'Pending',
+        paymentStatus: orderData.paymentMethod === 'Cash on Delivery' ? 'Pending' : 'Paid',
+        deliveryStatus: 'Pending',
         createdAt: new Date().toISOString()
       };
       
       // Deduct mock stocks
-      newOrder.orderItems.forEach(item => {
+      orderData.orderItems.forEach(item => {
         const prod = mockProducts.find(p => p._id === item.product);
         if (prod) prod.stock = Math.max(0, prod.stock - item.qty);
       });
@@ -406,9 +416,8 @@ export const api = {
       const index = mockOrders.findIndex(o => o._id === orderId);
       if (index === -1) throw new Error('Order not found');
       
-      mockOrders[index].isPaid = true;
-      mockOrders[index].paidAt = new Date().toISOString();
-      mockOrders[index].status = 'Processing';
+      mockOrders[index].paymentStatus = 'Paid';
+      mockOrders[index].deliveryStatus = 'Processing';
       mockOrders[index].paymentResult = {
         id: paymentPayload.id || 'TXN-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
         status: 'success',
@@ -438,10 +447,9 @@ export const api = {
     } else {
       const index = mockOrders.findIndex(o => o._id === orderId);
       if (index === -1) throw new Error('Order not found');
-      mockOrders[index].status = status;
+      mockOrders[index].deliveryStatus = status;
       if (status === 'Delivered') {
-        mockOrders[index].isDelivered = true;
-        mockOrders[index].deliveredAt = new Date().toISOString();
+        mockOrders[index].paymentStatus = 'Paid';
       }
       return mockOrders[index];
     }
@@ -455,12 +463,12 @@ export const api = {
     } else {
       const newProd = {
         _id: 'prod-' + Math.random().toString(36).substr(2, 9),
-        name: productData.name,
+        title: productData.title,
         description: productData.description,
         price: Number(productData.price),
         category: productData.category,
         stock: Number(productData.stock),
-        imageUrl: productData.imageUrl || 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60',
+        images: productData.images || ['https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60'],
         rating: 0,
         numReviews: 0,
         reviews: []
@@ -481,12 +489,12 @@ export const api = {
       
       mockProducts[index] = {
         ...mockProducts[index],
-        name: productData.name,
+        title: productData.title,
         description: productData.description,
         price: Number(productData.price),
         category: productData.category,
         stock: Number(productData.stock),
-        imageUrl: productData.imageUrl
+        images: productData.images
       };
       return mockProducts[index];
     }
@@ -509,17 +517,16 @@ export const api = {
       const response = await axiosInstance.get('/admin/dashboard');
       return response.data;
     } else {
-      // Calculate mock metrics
-      const totalSales = mockOrders.filter(o => o.isPaid).reduce((acc, o) => acc + o.totalPrice, 0);
+      const totalSales = mockOrders.filter(o => o.paymentStatus === 'Paid').reduce((acc, o) => acc + o.totalPrice, 0);
       const lowStockProducts = mockProducts.filter(p => p.stock < 5);
       
-      // Category Breakdown Mock
       const categorySalesMap = {};
-      mockOrders.filter(o => o.isPaid).forEach(o => {
-        o.orderItems.forEach(item => {
+      mockOrders.filter(o => o.paymentStatus === 'Paid').forEach(o => {
+        o.products.forEach(item => {
           const prod = mockProducts.find(p => p._id === item.product);
           const cat = prod ? prod.category : 'General';
-          categorySalesMap[cat] = (categorySalesMap[cat] || 0) + (item.price * item.qty);
+          const price = prod ? prod.price : 0;
+          categorySalesMap[cat] = (categorySalesMap[cat] || 0) + (price * item.qty);
         });
       });
 
@@ -532,7 +539,7 @@ export const api = {
         summary: {
           totalSales,
           totalOrdersCount: mockOrders.length,
-          paidOrdersCount: mockOrders.filter(o => o.isPaid).length,
+          paidOrdersCount: mockOrders.filter(o => o.paymentStatus === 'Paid').length,
           totalProductsCount: mockProducts.length,
           totalUsersCount: 3
         },

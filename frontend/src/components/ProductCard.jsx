@@ -8,13 +8,17 @@ import { addToCart } from '@/redux/slices/cartSlice';
 export default function ProductCard({ product, onViewDetails, onOpenCart }) {
   const dispatch = useDispatch();
 
+  const imageUrl = product.images && product.images.length > 0
+    ? product.images[0]
+    : 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60';
+
   const handleAddToCart = (e) => {
     e.stopPropagation();
     const cartItem = {
       product: product._id,
-      name: product.name,
+      name: product.title, // Keep internal slice names or maps
       price: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl: imageUrl,
       qty: 1,
       stock: product.stock
     };
@@ -24,7 +28,6 @@ export default function ProductCard({ product, onViewDetails, onOpenCart }) {
 
   const isOutOfStock = product.stock <= 0;
 
-  // Category specific pastel coloring
   const getCategoryStyles = (category) => {
     switch (category) {
       case 'Facewash':
@@ -49,8 +52,8 @@ export default function ProductCard({ product, onViewDetails, onOpenCart }) {
       {/* Product Image Area */}
       <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-50">
         <img
-          src={product.imageUrl}
-          alt={product.name}
+          src={imageUrl}
+          alt={product.title}
           className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
@@ -62,7 +65,7 @@ export default function ProductCard({ product, onViewDetails, onOpenCart }) {
           </span>
         </div>
 
-        {/* Stock Alert / Badge */}
+        {/* Stock Alert */}
         {isOutOfStock ? (
           <span className="absolute top-2.5 left-2.5 rounded-full bg-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
             Out of Stock
@@ -85,13 +88,13 @@ export default function ProductCard({ product, onViewDetails, onOpenCart }) {
           <div className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             <span className="text-xs font-bold text-slate-700">{product.rating}</span>
-            <span className="text-[10px] text-slate-400">({product.numReviews})</span>
+            <span className="text-[10px] text-slate-400">({product.reviews ? product.reviews.length : 0})</span>
           </div>
         </div>
 
-        {/* Name */}
+        {/* Title */}
         <h3 className="text-sm font-semibold tracking-tight text-slate-900 line-clamp-2 min-h-[40px] group-hover:text-emerald-700 transition-colors">
-          {product.name}
+          {product.title}
         </h3>
 
         {/* Description Snippet */}
@@ -99,7 +102,7 @@ export default function ProductCard({ product, onViewDetails, onOpenCart }) {
           {product.description}
         </p>
 
-        {/* Price and Cart Call to Action */}
+        {/* Price and Cart */}
         <div className="mt-4 flex items-center justify-between gap-4 border-t border-slate-50 pt-3">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Price</span>

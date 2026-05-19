@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Settings, Package, ShoppingBag, Plus, Trash2, Edit3, BarChart, Tag, RefreshCw } from 'lucide-react';
+import { X, Settings, Package, ShoppingBag, Plus, Trash2, Edit3, BarChart, Tag } from 'lucide-react';
 import { api } from '@/services/api';
 
 export default function AdminDashboardModal({ onClose }) {
@@ -18,9 +18,10 @@ export default function AdminDashboardModal({ onClose }) {
   const [editingProduct, setEditingProduct] = useState(null);
   
   // Product Form Field States
-  const [prodName, setProdName] = useState('');
+  const [prodTitle, setProdTitle] = useState('');
   const [prodDesc, setProdDesc] = useState('');
   const [prodPrice, setProdPrice] = useState('');
+  const [prodDiscountPrice, setProdDiscountPrice] = useState('0');
   const [prodCategory, setProdCategory] = useState('Facewash');
   const [prodStock, setProdStock] = useState('');
   const [prodImageUrl, setProdImageUrl] = useState('');
@@ -93,12 +94,13 @@ export default function AdminDashboardModal({ onClose }) {
     setError('');
 
     const payload = {
-      name: prodName,
+      title: prodTitle,
       description: prodDesc,
       price: Number(prodPrice),
+      discountPrice: Number(prodDiscountPrice || 0),
       category: prodCategory,
       stock: Number(prodStock),
-      imageUrl: prodImageUrl || 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60'
+      images: prodImageUrl ? [prodImageUrl] : ['https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60']
     };
 
     try {
@@ -110,10 +112,10 @@ export default function AdminDashboardModal({ onClose }) {
         setMessage('Product created successfully!');
       }
 
-      // Reset
-      setProdName('');
+      setProdTitle('');
       setProdDesc('');
       setProdPrice('');
+      setProdDiscountPrice('0');
       setProdStock('');
       setProdImageUrl('');
       setEditingProduct(null);
@@ -126,12 +128,13 @@ export default function AdminDashboardModal({ onClose }) {
 
   const handleEditClick = (p) => {
     setEditingProduct(p);
-    setProdName(p.name);
+    setProdTitle(p.title);
     setProdDesc(p.description);
     setProdPrice(p.price);
+    setProdDiscountPrice(p.discountPrice || '0');
     setProdCategory(p.category);
     setProdStock(p.stock);
-    setProdImageUrl(p.imageUrl);
+    setProdImageUrl(p.images && p.images.length > 0 ? p.images[0] : '');
     setShowAddForm(true);
   };
 
@@ -195,7 +198,7 @@ export default function AdminDashboardModal({ onClose }) {
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700">
               <Settings className="h-5 w-5" />
             </span>
-            <span className="font-bold text-slate-900 text-base">Admin Management Console</span>
+            <span className="font-bold text-slate-900 text-base">Admin Console</span>
           </div>
           <button
             onClick={onClose}
@@ -223,7 +226,7 @@ export default function AdminDashboardModal({ onClose }) {
                   onClick={() => { setActiveTab(tab.val); setError(''); setMessage(''); }}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-bold transition-colors cursor-pointer ${
                     activeTab === tab.val
-                      ? 'bg-amber-600 text-white shadow-md shadow-amber-600/10'
+                      ? 'bg-amber-600 text-white shadow-md'
                       : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -237,7 +240,7 @@ export default function AdminDashboardModal({ onClose }) {
           {/* Main Area */}
           <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col">
             
-            {/* Mobile Navigation tab bar */}
+            {/* Mobile Navigation */}
             <div className="flex border border-slate-100 rounded-full bg-slate-50 p-1 mb-6 sm:hidden flex-shrink-0">
               {['analytics', 'inventory', 'orders', 'coupons'].map((tab) => (
                 <button
@@ -252,15 +255,13 @@ export default function AdminDashboardModal({ onClose }) {
               ))}
             </div>
 
-            {/* MESSAGE FEEDBACK pill */}
             {message && <p className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full py-1.5 px-4 mb-4">{message}</p>}
-            {error && <p className="text-xs font-bold text-red-650 bg-red-50 border border-red-100 rounded-full py-1.5 px-4 mb-4">{error}</p>}
+            {error && <p className="text-xs font-bold text-red-605 bg-red-50 border border-red-100 rounded-full py-1.5 px-4 mb-4">{error}</p>}
 
             {/* TAB: Analytics */}
             {activeTab === 'analytics' && analytics && (
               <div className="space-y-6 animate-in fade-in duration-300">
                 
-                {/* Stats cards Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
                     { name: 'Total Revenue', value: `${analytics.summary.totalSales.toLocaleString()} BDT`, color: 'border-emerald-100 bg-emerald-50/20 text-emerald-800' },
@@ -275,10 +276,9 @@ export default function AdminDashboardModal({ onClose }) {
                   ))}
                 </div>
 
-                {/* Aggregated Details tables */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   
-                  {/* Category sales bar */}
+                  {/* Category sales */}
                   <div className="border border-slate-100 rounded-3xl p-6 bg-slate-50/30 space-y-4">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Sales By Skincare Category</h4>
                     <div className="space-y-3">
@@ -305,17 +305,17 @@ export default function AdminDashboardModal({ onClose }) {
                     </div>
                   </div>
 
-                  {/* Stock warning notifications */}
+                  {/* Stock alerts */}
                   <div className="border border-slate-100 rounded-3xl p-6 bg-slate-50/30 space-y-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Low Stock Inventory Alerts</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Low Stock Alerts</h4>
                     <div className="divide-y divide-slate-100 max-h-[160px] overflow-y-auto pr-1">
                       {analytics.lowStockProducts.length === 0 ? (
                         <p className="text-xs text-emerald-700 italic">All product stocks healthy.</p>
                       ) : (
                         analytics.lowStockProducts.map((p) => (
                           <div key={p._id} className="flex justify-between items-center py-2 text-xs">
-                            <span className="font-semibold text-slate-700 truncate max-w-[200px]">{p.name}</span>
-                            <span className="rounded-full bg-red-150 bg-red-100 px-2.5 py-0.5 text-[10px] font-bold text-red-650 text-red-700 animate-pulse">
+                            <span className="font-semibold text-slate-700 truncate max-w-[200px]">{p.title}</span>
+                            <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[10px] font-bold text-red-700 animate-pulse">
                               Only {p.stock} Left
                             </span>
                           </div>
@@ -333,7 +333,6 @@ export default function AdminDashboardModal({ onClose }) {
             {activeTab === 'inventory' && (
               <div className="space-y-6 flex-1 flex flex-col overflow-hidden">
                 
-                {/* Controls header */}
                 <div className="flex justify-between items-center flex-shrink-0">
                   <h4 className="text-sm font-bold text-slate-800">Product List ({products.length})</h4>
                   <button
@@ -348,7 +347,7 @@ export default function AdminDashboardModal({ onClose }) {
                   </button>
                 </div>
 
-                {/* Add/Edit Form Overlay */}
+                {/* Form */}
                 {showAddForm && (
                   <form onSubmit={handleProductSubmit} className="border border-slate-100 rounded-3xl p-6 bg-slate-50/30 space-y-3 flex-shrink-0 animate-in slide-in-from-top duration-300">
                     <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -358,11 +357,11 @@ export default function AdminDashboardModal({ onClose }) {
                     <div className="grid grid-cols-2 gap-3">
                       <input
                         type="text"
-                        placeholder="Product Name"
+                        placeholder="Product Title"
                         required
                         className="rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
-                        value={prodName}
-                        onChange={(e) => setProdName(e.target.value)}
+                        value={prodTitle}
+                        onChange={(e) => setProdTitle(e.target.value)}
                       />
                       <select
                         className="rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
@@ -376,7 +375,7 @@ export default function AdminDashboardModal({ onClose }) {
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <input
                         type="number"
                         placeholder="Price (BDT)"
@@ -384,6 +383,13 @@ export default function AdminDashboardModal({ onClose }) {
                         className="rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
                         value={prodPrice}
                         onChange={(e) => setProdPrice(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Discount Price (BDT)"
+                        className="rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
+                        value={prodDiscountPrice}
+                        onChange={(e) => setProdDiscountPrice(e.target.value)}
                       />
                       <input
                         type="number"
@@ -397,7 +403,7 @@ export default function AdminDashboardModal({ onClose }) {
 
                     <input
                       type="text"
-                      placeholder="Image URL Link"
+                      placeholder="Image URL"
                       className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
                       value={prodImageUrl}
                       onChange={(e) => setProdImageUrl(e.target.value)}
@@ -421,37 +427,40 @@ export default function AdminDashboardModal({ onClose }) {
                   </form>
                 )}
 
-                {/* Table listings */}
+                {/* List Table */}
                 <div className="flex-1 overflow-y-auto max-h-[380px] pr-2">
                   {loadingProducts ? (
                     <p className="text-xs text-slate-400">Loading products...</p>
                   ) : (
-                    <div className="border border-slate-100 rounded-3xl overflow-hidden divide-y divide-slate-150 divide-slate-100">
-                      {products.map((p) => (
-                        <div key={p._id} className="flex justify-between items-center p-3.5 hover:bg-slate-50 transition-colors text-xs">
-                          <div className="flex items-center gap-3">
-                            <img src={p.imageUrl} className="h-10 w-10 rounded-lg object-cover" />
-                            <div>
-                              <p className="font-bold text-slate-800 line-clamp-1">{p.name}</p>
-                              <span className="text-[10px] text-slate-400 font-semibold">{p.category} | {p.price} BDT | Stock: {p.stock}</span>
+                    <div className="border border-slate-100 rounded-3xl overflow-hidden divide-y divide-slate-100">
+                      {products.map((p) => {
+                        const img = p.images && p.images.length > 0 ? p.images[0] : 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=60';
+                        return (
+                          <div key={p._id} className="flex justify-between items-center p-3.5 hover:bg-slate-50 transition-colors text-xs">
+                            <div className="flex items-center gap-3">
+                              <img src={img} className="h-10 w-10 rounded-lg object-cover" />
+                              <div>
+                                <p className="font-bold text-slate-800 line-clamp-1">{p.title}</p>
+                                <span className="text-[10px] text-slate-400 font-semibold">{p.category} | {p.price} BDT | Stock: {p.stock}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditClick(p)}
+                                className="p-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors"
+                              >
+                                <Edit3 className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProduct(p._id)}
+                                className="p-2 rounded-full hover:bg-red-50 text-red-600 transition-colors"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEditClick(p)}
-                              className="p-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors"
-                            >
-                              <Edit3 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProduct(p._id)}
-                              className="p-2 rounded-full hover:bg-red-50 text-red-650 text-red-600 transition-colors"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -477,23 +486,20 @@ export default function AdminDashboardModal({ onClose }) {
                             <div className="flex items-center gap-2">
                               <span className="font-extrabold text-slate-900">{o._id}</span>
                               <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
-                                o.isPaid ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
+                                o.paymentStatus === 'Paid' ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
                               }`}>
-                                {o.isPaid ? 'PAID' : 'UNPAID'}
+                                {o.paymentStatus}
                               </span>
                             </div>
                             <p className="text-slate-400 text-[10px]">
                               Total: <span className="font-bold text-slate-800">{o.totalPrice.toLocaleString()} BDT</span> | Ph: {o.shippingAddress.phone}
-                            </p>
-                            <p className="text-slate-500 font-semibold truncate max-w-[400px]">
-                              Items: {o.orderItems.map(item => `${item.name} (${item.qty})`).join(', ')}
                             </p>
                           </div>
 
                           <div className="flex items-center gap-2 self-start sm:self-center">
                             <span className="text-[10px] font-bold text-slate-400">DISPATCH:</span>
                             <select
-                              value={o.status}
+                              value={o.deliveryStatus}
                               onChange={(e) => handleStatusChange(o._id, e.target.value)}
                               className="rounded-full border border-slate-200 bg-white py-1.5 px-3 font-semibold text-slate-700 outline-none"
                             >
@@ -516,7 +522,6 @@ export default function AdminDashboardModal({ onClose }) {
             {activeTab === 'coupons' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in duration-300">
                 
-                {/* List Coupons */}
                 <div className="space-y-4">
                   <h4 className="text-sm font-bold text-slate-800">Active Coupons</h4>
                   <div className="border border-slate-100 rounded-3xl overflow-hidden divide-y divide-slate-100 bg-slate-50/20">
@@ -537,37 +542,36 @@ export default function AdminDashboardModal({ onClose }) {
                   </div>
                 </div>
 
-                {/* Add Coupon Form */}
                 <form onSubmit={handleCreateCoupon} className="border border-slate-100 rounded-3xl p-6 bg-slate-50/10 space-y-3 self-start">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Create Promo Voucher</h4>
                   <input
                     type="text"
-                    placeholder="Coupon Code (e.g. SUMMERSKIN30)"
+                    placeholder="Coupon Code"
                     required
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                   />
                   <input
                     type="number"
-                    placeholder="Discount Percentage (e.g. 30)"
+                    placeholder="Discount Percentage"
                     required
                     min="1"
                     max="100"
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none"
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs"
                     value={couponDiscount}
                     onChange={(e) => setCouponDiscount(e.target.value)}
                   />
                   <input
                     type="date"
                     required
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs outline-none text-slate-500"
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-3 text-xs text-slate-500"
                     value={couponExpiry}
                     onChange={(e) => setCouponExpiry(e.target.value)}
                   />
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-emerald-950 hover:bg-emerald-900 text-white font-bold py-2.5 text-xs shadow-md cursor-pointer"
+                    className="w-full rounded-full bg-emerald-950 hover:bg-emerald-900 text-white font-bold py-2.5 text-xs shadow-md"
                   >
                     Add Coupon
                   </button>
